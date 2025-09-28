@@ -13,7 +13,7 @@ from ansible_creator.constants import GLOBAL_TEMPLATE_VARS
 from ansible_creator.exceptions import CreatorError
 from ansible_creator.templar import Templar
 from ansible_creator.types import TemplateData
-from ansible_creator.utils import Copier, Walker, ask_yes_no
+from ansible_creator.utils import Copier, FileList, Walker, ask_yes_no
 
 
 if TYPE_CHECKING:
@@ -38,7 +38,6 @@ class Add:
         """
         self._resource_type: str = config.resource_type
         self._role_name: str = config.role_name
-        self._pattern_name: str = config.pattern_name
         self._plugin_type: str = config.plugin_type
         self._resource_id: str = f"common.{self._resource_type}"
         self._plugin_id: str = f"collection_project.plugins.{self._plugin_type}"
@@ -173,12 +172,6 @@ class Add:
             template_data = self._get_devcontainer_template_data()
         elif self._resource_type == "execution-environment":
             template_data = self._get_ee_template_data()
-        elif self._resource_type == "patterns":
-            self._check_collection_path()
-            pattern_path = self._add_path / "extensions" / "patterns"
-            pattern_path.mkdir(parents=True, exist_ok=True)
-            dest_path = pattern_path
-            template_data = self._get_patterns_template_data()
         elif self._resource_type == "play-argspec":
             template_data = self._get_play_argspec_template_data()
         elif self._resource_type == "role":
@@ -350,6 +343,10 @@ class Add:
             templar=self.templar,
         )
         paths = walker.collect_paths()
+
+        # To remove unnecessarily collected files from paths list.
+        paths = self._plugin_file_conflicts(paths)
+
         copier = Copier(output=self.output)
 
         if self._no_overwrite and paths.has_conflicts():
@@ -454,18 +451,6 @@ class Add:
             creator_version=self._creator_version,
         )
 
-    def _get_patterns_template_data(self) -> TemplateData:
-        """Get the template data for pattern structure.
-
-        Returns:
-            TemplateData: Data required for templating the plugin.
-        """
-        return TemplateData(
-            resource_type=self._resource_type,
-            pattern_name=self._pattern_name,
-            creator_version=self._creator_version,
-        )
-
     def _get_role_template_data(self) -> TemplateData:
         """Get the template data for role resources.
 
@@ -479,3 +464,36 @@ class Add:
             collection_name=self._collection_name,
             creator_version=self._creator_version,
         )
+
+    def _plugin_file_conflicts(self, paths: FileList) -> FileList:
+        """Filter out conflicting files for plugins.
+
+        When scaffolding plugins, we need to avoid conflicts between different
+        template files in the same directory (e.g., sample_action.py.j2 and
+        sample_module.py.j2 in the modules directory).
+
+        Args:
+            paths: The FileList of paths to filter
+
+        Returns:
+            FileList: Filtered paths list
+        """
+        if self._plugin_type not in ("action", "modules"):
+            return paths
+
+        filtered_paths = FileList()
+        for path in paths:
+            if path.dest.name == f"{self._plugin_name}.py":
+                # For action plugins, include both action and module doc templates
+                if self._plugin_type == "action":
+                    if (
+                        "modules" in str(path.source) and "sample_action.py.j2" in str(path.source)
+                    ) or "action" in str(path.source):
+                        filtered_paths.append(path)
+                # For module plugins, only include the module template
+                elif self._plugin_type == "modules":  # noqa: SIM102
+                    if "modules" in str(path.source) and "sample_module.py.j2" in str(path.source):
+                        filtered_paths.append(path)
+            else:
+                filtered_paths.append(path)
+        return filtered_paths
