@@ -83,7 +83,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-instafail" },
     { name = "pytest-plus" },
-    { name = "pytest-sugar" },
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "toml-sort" },
@@ -119,10 +118,9 @@ dev = [
     { name = "pre-commit", specifier = ">=4.3.0" },
     { name = "pydoclint", specifier = ">=0.7.3" },
     { name = "pylint", specifier = ">=3.3.8" },
-    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-instafail", specifier = ">=0.5.0" },
     { name = "pytest-plus", specifier = ">=0.8.1" },
-    { name = "pytest-sugar", specifier = ">=1.1.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
     { name = "ruff", specifier = ">=0.12.11" },
     { name = "toml-sort", specifier = ">=0.24.2" },
@@ -1863,19 +1861,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pytest-sugar"
-version = "1.1.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pytest" },
-    { name = "termcolor" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/4e/60fed105549297ba1a700e1ea7b828044842ea27d72c898990510b79b0e2/pytest-sugar-1.1.1.tar.gz", hash = "sha256:73b8b65163ebf10f9f671efab9eed3d56f20d2ca68bda83fa64740a92c08f65d", size = 16533, upload-time = "2025-08-23T12:19:35.737Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/d5/81d38a91c1fdafb6711f053f5a9b92ff788013b19821257c2c38c1e132df/pytest_sugar-1.1.1-py3-none-any.whl", hash = "sha256:2f8319b907548d5b9d03a171515c1d43d2e38e32bd8182a1781eb20b43344cc8", size = 11440, upload-time = "2025-08-23T12:19:34.894Z" },
-]
-
-[[package]]
 name = "pytest-xdist"
 version = "3.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2363,14 +2348,14 @@ wheels = [
 
 [[package]]
 name = "super-collections"
-version = "0.6.0"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "hjson" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8c/2c/82f3db1c3a393edaf9e95c64e740bf10044f04d156c04466128f99e65c35/super_collections-0.6.0.tar.gz", hash = "sha256:6c537d9403e27c3626b992805ff2656ece43fc567725e7ccbb4291d6157db99f", size = 30650, upload-time = "2025-09-28T01:50:27.428Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e0/de/a0c3d1244912c260638f0f925e190e493ccea37ecaea9bbad7c14413b803/super_collections-0.6.2.tar.gz", hash = "sha256:0c8d8abacd9fad2c7c1c715f036c29f5db213f8cac65f24d45ecba12b4da187a", size = 31315, upload-time = "2025-09-30T00:37:08.067Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/10/95a07cff55e901359dd049839a4253fca524005072da845aef04180c7492/super_collections-0.6.0-py3-none-any.whl", hash = "sha256:608e5cbf26467a501eac04e9617d3cb1a0729347a27531d38b497603aac51a73", size = 15842, upload-time = "2025-09-28T01:50:26.061Z" },
+    { url = "https://files.pythonhosted.org/packages/17/43/47c7cf84b3bd74a8631b02d47db356656bb8dff6f2e61a4c749963814d0d/super_collections-0.6.2-py3-none-any.whl", hash = "sha256:291b74d26299e9051d69ad9d89e61b07b6646f86a57a2f5ab3063d206eee9c56", size = 16173, upload-time = "2025-09-30T00:37:07.104Z" },
 ]
 
 [[package]]
