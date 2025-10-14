@@ -87,7 +87,7 @@ concurrency = ["multiprocessing", "thread"]
 omit = ["_version.py"]
 parallel = true
 relative_files = true
-source = ["src/ansible_creator"]
+source = ["src"]
 
 [tool.mypy]
 cache_dir = "./.cache/.mypy"
@@ -104,7 +104,7 @@ allow-init-docstring = true
 arg-type-hints-in-docstring = false
 baseline = ".config/pydoclint-baseline.txt"
 check-return-types = false
-exclude = '\.git|\.tox|build|out|venv|tests/fixtures'
+exclude = '\.git|\.tox|build|out|venv|tests/fixtures|node_modules'
 should-declare-assert-error-if-assert-statement-exists = true
 should-document-private-class-attributes = true
 show-filenames-in-every-violation-message = true
