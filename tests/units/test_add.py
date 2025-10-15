@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -126,8 +127,6 @@ def test_run_success_add_devfile(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["resource_type"] = "devfile"
     add = Add(
@@ -199,8 +198,6 @@ def test_run_error_no_overwrite(
         tmp_path: Temporary directory path.
         cli_args: Dictionary, partial Add class object.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["resource_type"] = "devfile"
     add = Add(
@@ -254,8 +251,6 @@ def test_error_invalid_path(
     Args:
         cli_args: Dictionary, partial Add class object.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["resource_type"] = "devfile"
     cli_args["path"] = "/invalid"
@@ -281,8 +276,6 @@ def test_error_invalid_collection_path(
         cli_args: Dictionary, partial Add class object.
         skip_collection_check: Whether to check for a valid collection.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["plugin_type"] = "lookup"
     add = Add(
@@ -318,8 +311,6 @@ def test_run_error_unsupported_resource_type(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["resource_type"] = "devfile"
     add = Add(
@@ -332,6 +323,33 @@ def test_run_error_unsupported_resource_type(
     with pytest.raises(CreatorError) as exc_info:
         add.run()
     assert "Unsupported resource type: unsupported_type" in str(exc_info.value)
+
+
+def test_run_success_add_ai(
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    cli_args: ConfigDict,
+) -> None:
+    """Test Add.run() for adding AI files.
+
+    Args:
+        capsys: Pytest fixture to capture stdout and stderr.
+        tmp_path: Temporary directory path.
+        cli_args: Dictionary, partial Add class object.
+
+    """
+    cli_args["resource_type"] = "ai"
+    add = Add(
+        Config(**cli_args),
+    )
+    add.run()
+    result = capsys.readouterr().out
+    assert "Note: Resource added to" in result
+    expected_file = tmp_path / "AGENTS.md"
+    assert expected_file.exists()
+    assert not expected_file.is_symlink()
+    content = expected_file.read_text()
+    assert len(content) > 0
 
 
 def test_run_success_add_devcontainer(
@@ -350,8 +368,6 @@ def test_run_success_add_devcontainer(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     # Set the resource_type to devcontainer
     cli_args["resource_type"] = "devcontainer"
@@ -397,7 +413,12 @@ def test_run_success_add_devcontainer(
 
 
 # Skip this test on macOS due to unavailability of docker on macOS GHA runners
-@pytest.mark.skipif(sys.platform == "darwin", reason="Skip test on macOS")
+@pytest.mark.skipif(
+    sys.platform == "darwin"
+    and os.environ.get("CI", "false") == "true"
+    and not shutil.which("docker"),
+    reason="Skip devcontainer test on CI macOS due to unavailability of docker.",
+)
 def test_devcontainer_usability(
     capsys: pytest.CaptureFixture[str],
     tmp_path: Path,
@@ -413,7 +434,6 @@ def test_devcontainer_usability(
         cli_args: Dictionary, partial Add class object.
 
     Raises:
-        AssertionError: If the assertion fails.
         FileNotFoundError: If the 'npm' or 'docker' executable is not found in the PATH.
     """
     # Set the resource_type to devcontainer
@@ -538,8 +558,6 @@ def test_run_success_add_plugin(  # noqa: PLR0913, # pylint: disable=too-many-po
         expected_message: Expected success message.
         expected_file_path: Expected file path for the plugin.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["plugin_type"] = plugin_type
     cli_args["plugin_name"] = plugin_name
@@ -624,8 +642,6 @@ def test_run_error_plugin_no_overwrite(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     cli_args["plugin_type"] = "lookup"
     cli_args["plugin_name"] = "sample_lookup"
@@ -684,8 +700,6 @@ def test_run_error_unsupported_plugin_type(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     add = Add(
         Config(**cli_args),
@@ -724,8 +738,6 @@ def test_run_success_add_execution_env(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     # Set the resource_type to execution-environment
     cli_args["resource_type"] = "execution-environment"
@@ -786,8 +798,6 @@ def test_run_success_add_play_argspec(
         cli_args: Dictionary, partial Add class object.
         monkeypatch: Pytest monkeypatch fixture.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     # Set the resource_type to play-argspec
     cli_args["resource_type"] = "play-argspec"
@@ -850,7 +860,6 @@ def test_run_success_add_role(
         monkeypatch: Pytest monkeypatch fixture.
 
     Raises:
-        AssertionError: If the assertion fails.
         ValueError: If the file is not found.
     """
     # Set the resource_type to role
@@ -942,8 +951,6 @@ def test_update_galaxy_dependency(tmp_path: Path, cli_args: ConfigDict) -> None:
         tmp_path: Temporary directory path.
         cli_args: Dictionary, partial Add class object.
 
-    Raises:
-        AssertionError: If the assertion fails.
     """
     galaxy_file = tmp_path / "galaxy.yml"
     initial_data: dict[str, Any]
@@ -993,10 +1000,6 @@ def test_role_galaxy(tmp_path: Path, cli_args: ConfigDict) -> None:
     Args:
         tmp_path: Temporary directory path.
         cli_args: Dictionary, partial Add class object.
-
-    Raises:
-        AssertionError: If the assertion fails.
-        AssertionError: If the namespace or collection name mismatch.
     """
     galaxy_file = tmp_path / "galaxy.yml"
     initial_data: dict[str, Any]
@@ -1009,9 +1012,8 @@ def test_role_galaxy(tmp_path: Path, cli_args: ConfigDict) -> None:
 
     with galaxy_file.open("r") as file:
         updated_data = yaml.safe_load(file)
-    if namespace != "your-collection-namespace" or collection_name != "your-collection-name":
-        error = "Namespace or collection name mismatch"
-        raise AssertionError(error)
+    assert namespace == "your-collection-namespace", f"Namespace name mismatch {namespace}"
+    assert collection_name == "your-collection-name", f"Collection name mismatch {collection_name}"
     assert namespace == "your-collection-namespace"
     assert collection_name == "your-collection-name"
 

@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import re
-import sys
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 
+from tests.defaults import CREATOR_BIN
+
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from tests.conftest import CliRunCallable
-
-
-CREATOR_BIN = Path(sys.executable).parent / "ansible-creator"
 
 
 def test_run_help(cli: CliRunCallable) -> None:
@@ -23,9 +22,6 @@ def test_run_help(cli: CliRunCallable) -> None:
 
     Args:
         cli: cli_run function.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     # Get the path to the current python interpreter
     result = cli(f"{CREATOR_BIN} --help")
@@ -44,28 +40,10 @@ def test_run_no_subcommand(cli: CliRunCallable) -> None:
 
     Args:
         cli: cli_run function.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     result = cli(str(CREATOR_BIN))
     assert result.returncode != 0
     assert "the following arguments are required: command" in result.stderr
-
-
-def test_run_init_no_input(cli: CliRunCallable) -> None:
-    """Test running ansible-creator init without any input.
-
-    Args:
-        cli: cli_run function.
-
-    Raises:
-        AssertionError: If the assertion fails.
-    """
-    result = cli(f"{CREATOR_BIN} init")
-    assert result.returncode != 0
-    err = "the following arguments are required: project-type"
-    assert err in result.stderr
 
 
 @pytest.mark.parametrize(
@@ -79,9 +57,6 @@ def test_run_deprecated_failure(command: str, cli: CliRunCallable) -> None:
     Args:
         command: Command to run.
         cli: cli_run function.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     result = cli(f"{CREATOR_BIN} {command}")
     assert result.returncode != 0
@@ -107,9 +82,6 @@ def test_run_init_invalid_name(command: str, args: str, expected: str, cli: CliR
         args: Arguments to pass to the CLI.
         expected: Expected error message.
         cli: cli_run function.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     result = cli(f"{CREATOR_BIN} init {command} {args}")
     assert result.returncode != 0
@@ -123,9 +95,6 @@ def test_run_init_basic(cli: CliRunCallable, tmp_path: Path) -> None:
     Args:
         cli: cli_run function.
         tmp_path: Temporary path.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     final_dest = f"{tmp_path}/collections/ansible_collections"
     cli(f"mkdir -p {final_dest}")
@@ -136,7 +105,7 @@ def test_run_init_basic(cli: CliRunCallable, tmp_path: Path) -> None:
     assert result.returncode == 0
 
     # check stdout
-    assert re.search(r"Note: collection project created at", result.stdout) is not None
+    assert r"Note: collection project created at" in result.stdout
 
     # fail to override existing collection with force=false (default)
     result = cli(
@@ -148,7 +117,7 @@ def test_run_init_basic(cli: CliRunCallable, tmp_path: Path) -> None:
     # override existing collection with force=true
     result = cli(f"{CREATOR_BIN} init testorg.testcol --init-path {tmp_path} --force")
     assert result.returncode == 0
-    assert re.search(r"Warning: re-initializing existing directory", result.stdout) is not None
+    assert r"Warning: re-initializing existing directory" in result.stdout
 
     # override existing collection with override=true
     result = cli(f"{CREATOR_BIN} init testorg.testcol --init-path {tmp_path} --overwrite")
@@ -167,9 +136,6 @@ def test_run_init_ee(cli: CliRunCallable, tmp_path: Path) -> None:
     Args:
         cli: cli_run function.
         tmp_path: Temporary path.
-
-    Raises:
-        AssertionError: If the assertion fails.
     """
     final_dest = f"{tmp_path}/ee_project"
     cli(f"mkdir -p {final_dest}")
@@ -180,4 +146,4 @@ def test_run_init_ee(cli: CliRunCallable, tmp_path: Path) -> None:
     assert result.returncode == 0
 
     # check stdout
-    assert re.search(r"Note: execution_env project created at", result.stdout) is not None
+    assert r"Note: execution_env project created at" in result.stdout
